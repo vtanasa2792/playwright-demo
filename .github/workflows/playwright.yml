@@ -8,10 +8,10 @@ jobs:
   login-tests:
     uses: ./.github/workflows/run-tests.yml
     with:
-      test-path: tests/login
+      tests-folder: login
     secrets: inherit
   products-catalog-tests:
     uses: ./.github/workflows/run-tests.yml
     with:
-      test-path: tests/products-catalog
+      tests-folder: products-catalog
     secrets: inherit

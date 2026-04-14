@@ -2,7 +2,7 @@ name: Run Tests Workflow
 on:
   workflow_call:
     inputs:
-      test-path:
+      tests-folder:
         required: true
         type: string
 jobs:
@@ -19,12 +19,12 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: npx playwright test ${{ inputs.test-path }}
+        run: npx playwright test tests/${{ inputs.tests-folder }}
         env:
           TEST_USERS: ${{ secrets.TEST_USERS }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-${{ inputs.tests-folder }}
           path: playwright-report/
           retention-days: 30
