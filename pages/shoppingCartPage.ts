@@ -72,9 +72,9 @@ class ShoppingCartPage {
    */
   async expectItemPriceTotal(itemName: string) {
     const cartTableRow = this.getCartRowByItem(itemName);
-    const itemQuantity = await cartTableRow
-      .getByTestId("product-quantity")
-      .inputValue();
+    const quantityLocator = cartTableRow.getByTestId("product-quantity");
+    const itemQuantity = await quantityLocator.inputValue();
+    await expect(quantityLocator).toHaveValue(itemQuantity);
     const itemUnitPrice = await cartTableRow
       .getByTestId("product-price")
       .textContent();
