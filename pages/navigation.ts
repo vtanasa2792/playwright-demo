@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 type NavDestinations = "Home" | "Contact" | "Sign In";
 type NavCategories =
   | "Hand Tools"
@@ -11,6 +11,9 @@ class NavigationComponent {
   constructor(private page: Page) {}
 
   private NAVIGATION_CONTAINER = this.page.locator("#navbarSupportedContent");
+  private NAVIGATION_SHOPPING_CART = this.page.getByTestId("nav-cart");
+  private NAVIGATION_SHOPPING_CART_COUNT =
+    this.page.getByTestId("cart-quantity");
 
   /**
    * Navigate to the desired Page
@@ -35,6 +38,23 @@ class NavigationComponent {
     await this.NAVIGATION_CONTAINER.getByRole("link", {
       name: destinationCategory,
     }).click();
+  }
+
+  /**
+   * Navigate to the Shopping Cart
+   */
+  async navigateToShoppingCart() {
+    await this.NAVIGATION_SHOPPING_CART.click();
+  }
+
+  /**
+   * Validate that the Number of Items is correctly displayed on the Cart Icon
+   * @param count
+   */
+  async expectCartCount(count: number) {
+    await expect(this.NAVIGATION_SHOPPING_CART_COUNT).toHaveText(
+      count.toString(),
+    );
   }
 }
 

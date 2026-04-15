@@ -39,19 +39,31 @@ class ProductsPage {
   private FILTERS_SEARCH_SUBMIT_BTN = this.page.getByTestId("search-submit");
   private FILTERS_RESET_BTN = this.page.getByTestId("search-reset");
 
-  // Produts catalog
+  // Products catalog
   private PRODUCT_NO_RESULTS = this.page.getByTestId("no-results");
   private PRODUCT_CARD = this.page.locator('[data-test^="product-"]');
   private PRODUCT_CARD_NAME = this.page.getByTestId("product-name");
-  private PRODUCT_CARD_CO2 = this.page.getByTestId("co2-rating-badge");
   private PRODUCT_CARD_PRICE = this.page.getByTestId("product-price");
 
+  /**
+   * Validate that the main elements of the page are visible
+   */
   async isProductsPageLoaded() {
     await expect(this.FILTERS_CONTAINER).toBeVisible();
   }
 
   /**
-   * Sort items by desired criteria
+   * Open a Product by clicking on the Product Card containing its Name
+   * @param productName
+   */
+  async openProductByName(productName: string) {
+    await this.PRODUCT_CARD.filter({
+      has: this.PRODUCT_CARD_NAME.filter({ hasText: productName }),
+    }).click();
+  }
+
+  /**
+   * Sort Products by desired criteria
    * @param sortCriteria
    */
   async sortBy(sortCriteria: SortCriteria) {
@@ -62,7 +74,7 @@ class ProductsPage {
   }
 
   /**
-   * Search items by name
+   * Search Products by name
    * @param searchTerm
    */
   async searchByName(searchTerm: string) {
@@ -73,7 +85,7 @@ class ProductsPage {
   }
 
   /**
-   * Filter items by desired categories
+   * Filter Products by desired categories
    * @param filters
    */
   async filterByCategory(...filters: ProductCategory[]) {
@@ -87,14 +99,14 @@ class ProductsPage {
   }
 
   /**
-   * Reset all applied fliters
+   * Reset all applied filters
    */
   async resetFilters() {
     await this.FILTERS_RESET_BTN.click();
   }
 
   /**
-   * Returns an array of all the prices visible on the page
+   * Returns an array of all the Product Prices visible on the page
    * @returns
    */
   async getDisplayedPrices() {
@@ -107,7 +119,7 @@ class ProductsPage {
   }
 
   /**
-   * Returns an array of all the prices visible on the page
+   * Returns an array of all the Product Names visible on the page
    * @returns
    */
   async getDisplayedNames() {
@@ -123,8 +135,10 @@ class ProductsPage {
    * Validate that No Search Results is displayed
    */
   async isNoSearchResultsDisplayed() {
-    expect(this.PRODUCT_NO_RESULTS).toBeVisible();
-    expect(this.PRODUCT_NO_RESULTS).toHaveText("There are no products found.");
+    await expect(this.PRODUCT_NO_RESULTS).toBeVisible();
+    await expect(this.PRODUCT_NO_RESULTS).toHaveText(
+      "There are no products found.",
+    );
   }
 }
 export default ProductsPage;

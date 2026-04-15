@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { assert } from "node:console";
 
 class GeneralUtilities {
   /**
@@ -9,9 +9,9 @@ class GeneralUtilities {
   checkArraySorting(inputArray: any[], sortType: "ascending" | "descending") {
     for (let i = 0; i <= inputArray.length - 2; i++) {
       if (sortType === "ascending") {
-        expect(inputArray[i] <= inputArray[i + 1]).toBe(true);
+        assert(inputArray[i] <= inputArray[i + 1]);
       } else if (sortType === "descending") {
-        expect(inputArray[i] >= inputArray[i + 1]).toBe(true);
+        assert(inputArray[i] >= inputArray[i + 1]);
       }
     }
   }
