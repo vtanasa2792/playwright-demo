@@ -6,6 +6,14 @@ type PaymentMethods =
   | "Buy Now Pay Later"
   | "Gift Card";
 
+type Address = {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+};
+
 class ShoppingCartPage {
   constructor(private page: Page) {}
 
@@ -13,6 +21,12 @@ class ShoppingCartPage {
   private CART_PROCEED_BTN = this.page.locator('[data-test^="proceed-"]');
   private CART_SELECT_PAYMENT_METHOD = this.page.getByTestId("payment-method");
   private CART_CONFIRM_PAYMENT_METHOD = this.page.getByTestId("finish");
+
+  private CART_BILLING_ADDR_STREET = this.page.getByTestId("street");
+  private CART_BILLING_ADDR_CITY = this.page.getByTestId("city");
+  private CART_BILLING_ADDR_STATE = this.page.getByTestId("state");
+  private CART_BILLING_ADDR_COUNTRY = this.page.getByTestId("country");
+  private CART_BILLING_ADDR_POSTAL_CODE = this.page.getByTestId("postal_code");
 
   /**
    * Set the quantity of an item in the Shopping Cart
@@ -77,7 +91,35 @@ class ShoppingCartPage {
    * Click the Proceed to Checkout button
    */
   async clickProceedToCheckout() {
-    await this.CART_PROCEED_BTN.filter({ visible: true }).click();
+    const proceedToCheckoutBtn = this.CART_PROCEED_BTN.filter({
+      visible: true,
+    });
+    await expect(proceedToCheckoutBtn).toBeEnabled();
+    await proceedToCheckoutBtn.click();
+  }
+
+  /**
+   * Fill in the Billing Address form
+   * @param address
+   */
+  async fillBillingAddress(address: Address) {
+    // Slowed down sequantial typing is needed due to Form Validation flakyness
+    await this.CART_BILLING_ADDR_STREET.pressSequentially(address.street, {
+      delay: 100,
+    });
+    await this.CART_BILLING_ADDR_CITY.pressSequentially(address.city, {
+      delay: 100,
+    });
+    await this.CART_BILLING_ADDR_STATE.pressSequentially(address.state, {
+      delay: 100,
+    });
+    await this.CART_BILLING_ADDR_COUNTRY.pressSequentially(address.country, {
+      delay: 100,
+    });
+    await this.CART_BILLING_ADDR_POSTAL_CODE.pressSequentially(
+      address.postal_code,
+      { delay: 100 },
+    );
   }
 
   /**

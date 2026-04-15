@@ -4,6 +4,7 @@ import LoginPage from "../../pages/loginPage";
 import NavigationComponent from "../../pages/navigation";
 import ProductDetailsPage from "../../pages/productDetailsPage";
 import ShoppingCartPage from "../../pages/shoppingCartPage";
+import dummyAddresses from "../../fixtures/mock-addresses.json";
 
 test.describe("Shopping Cart Scenarios", () => {
   let Login: LoginPage;
@@ -72,6 +73,7 @@ test.describe("Shopping Cart Scenarios", () => {
     // Sign In > Billing Address
     await Login.loginAs("customer1");
     await ShoppingCart.clickProceedToCheckout();
+    await ShoppingCart.fillBillingAddress(dummyAddresses.addresses[0]);
     // Billing Address > Payment Method
     await ShoppingCart.clickProceedToCheckout();
     await ShoppingCart.selectPaymentMethod("Cash on Delivery");
