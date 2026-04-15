@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import UserConfig from "../config/UserConfig";
 class LoginPage {
   constructor(private page: Page) {}
 
@@ -10,7 +11,9 @@ class LoginPage {
   private LOGIN_PASSWORD_ERROR = this.page.getByTestId("password-error");
   private LOGIN_PROCESS_ERROR = this.page.getByTestId("login-error");
 
-  // Validate login form is visible
+  /**
+   * Validate that the main elements of the page are visible
+   */
   async isLoginPageLoaded() {
     await expect(this.LOGIN_FORM).toBeVisible();
   }
@@ -60,6 +63,19 @@ class LoginPage {
    */
   async validateLoginProcessError(errorMessage: string) {
     await expect(this.LOGIN_PROCESS_ERROR).toHaveText(errorMessage);
+  }
+
+  /**
+   * Login as X Role by parsing .env credentials
+   * @param role
+   */
+  async loginAs(role: "admin" | "customer1") {
+    const loginRequest = this.page.waitForResponse("**/users/login");
+    const { email, password } = new UserConfig().getCredentials(role);
+    await this.inputEmail(email);
+    await this.inputPassword(password);
+    await this.clickLoginButton();
+    await loginRequest;
   }
 }
 export default LoginPage;
