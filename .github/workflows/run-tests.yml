@@ -5,6 +5,10 @@ on:
       tests-folder:
         required: true
         type: string
+      install-browsers:
+        required: false
+        type: boolean
+        default: true
 jobs:
   tests:
     timeout-minutes: 60
@@ -17,6 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
+        if: ${{ inputs.install-browsers }}
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: npx playwright test tests/${{ inputs.tests-folder }}

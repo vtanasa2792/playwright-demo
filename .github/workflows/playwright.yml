@@ -22,3 +22,10 @@ jobs:
     with:
       tests-folder: shopping-cart
     secrets: inherit
+
+  api-tests:
+    uses: ./.github/workflows/run-tests.yml
+    with:
+      tests-folder: api
+      install-browsers: false
+    secrets: inherit

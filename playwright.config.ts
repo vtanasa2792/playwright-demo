@@ -40,11 +40,21 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: "**/api/**",
     },
 
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
+      testIgnore: "**/api/**",
+    },
+
+    {
+      name: "api-tests",
+      testDir: "./tests/api",
+      use: {
+        baseURL: "https://api.practicesoftwaretesting.com",
+      },
     },
 
     /* Test against mobile viewports. */
