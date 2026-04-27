@@ -7,11 +7,9 @@ type PaymentMethods =
   | "Gift Card";
 
 type Address = {
-  street: string;
-  city: string;
-  state: string;
   country: string;
   postal_code: string;
+  house_number: string;
 };
 
 class ShoppingCartPage {
@@ -22,11 +20,18 @@ class ShoppingCartPage {
   private CART_SELECT_PAYMENT_METHOD = this.page.getByTestId("payment-method");
   private CART_CONFIRM_PAYMENT_METHOD = this.page.getByTestId("finish");
 
-  private CART_BILLING_ADDR_STREET = this.page.getByTestId("street");
-  private CART_BILLING_ADDR_CITY = this.page.getByTestId("city");
-  private CART_BILLING_ADDR_STATE = this.page.getByTestId("state");
+  private CART_BILLING_ADDR_HOUSE_NO = this.page.getByTestId("house_number");
   private CART_BILLING_ADDR_COUNTRY = this.page.getByTestId("country");
   private CART_BILLING_ADDR_POSTAL_CODE = this.page.getByTestId("postal_code");
+
+  private CART_GUEST_LOGIN_TAB = this.page.getByRole("tab", {
+    name: "Continue as Guest",
+  });
+  private CART_GUEST_EMAIL_INPUT = this.page.getByTestId("guest-email");
+  private CART_GUEST_FIRST_NAME_INPUT =
+    this.page.getByTestId("guest-first-name");
+  private CART_GUEST_LAST_NAME_INPUT = this.page.getByTestId("guest-last-name");
+  private CARG_GUEST_SUBMIT_BTN = this.page.getByTestId("guest-submit");
 
   /**
    * Set the quantity of an item in the Shopping Cart
@@ -99,26 +104,47 @@ class ShoppingCartPage {
   }
 
   /**
-   * Fill in the Billing Address form
-   * @param address
+   * Switch to the Continue as Guest tab on the Sign In step
    */
-  async fillBillingAddress(address: Address) {
-    // Slowed down sequantial typing is needed due to Form Validation flakyness
-    await this.CART_BILLING_ADDR_STREET.pressSequentially(address.street, {
-      delay: 100,
+  async clickContinueAsGuestTab() {
+    await this.CART_GUEST_LOGIN_TAB.click();
+  }
+
+  /**
+   * Fill in the Guest checkout form and submit it
+   * @param email
+   * @param firstName
+   * @param lastName
+   */
+  async signUpAsGuest(email: string, firstName: string, lastName: string) {
+    await this.CART_GUEST_EMAIL_INPUT.fill(email);
+    await this.CART_GUEST_FIRST_NAME_INPUT.fill(firstName);
+    await this.CART_GUEST_LAST_NAME_INPUT.fill(lastName);
+    await this.CARG_GUEST_SUBMIT_BTN.click();
+  }
+
+  /**
+   * Fill in the Billing Address details. Country + house number + postal code
+   * are the user-entered fields; the postcode lookup auto-fills the rest.
+   */
+  async fillBillingDetails(address: Address) {
+    await this.CART_BILLING_ADDR_COUNTRY.click();
+    await this.CART_BILLING_ADDR_COUNTRY.selectOption({
+      label: address.country,
     });
-    await this.CART_BILLING_ADDR_CITY.pressSequentially(address.city, {
-      delay: 100,
-    });
-    await this.CART_BILLING_ADDR_STATE.pressSequentially(address.state, {
-      delay: 100,
-    });
-    await this.CART_BILLING_ADDR_COUNTRY.pressSequentially(address.country, {
-      delay: 100,
-    });
-    await this.CART_BILLING_ADDR_POSTAL_CODE.pressSequentially(
+
+    await this.CART_BILLING_ADDR_HOUSE_NO.fill(address.house_number);
+    await expect(this.CART_BILLING_ADDR_HOUSE_NO).toHaveValue(
+      address.house_number,
+    );
+
+    const postalCodeLookup = this.page.waitForResponse((response) =>
+      response.url().includes("postcode-lookup"),
+    );
+    await this.CART_BILLING_ADDR_POSTAL_CODE.fill(address.postal_code);
+    await postalCodeLookup;
+    await expect(this.CART_BILLING_ADDR_POSTAL_CODE).toHaveValue(
       address.postal_code,
-      { delay: 100 },
     );
   }
 
