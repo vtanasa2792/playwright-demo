@@ -7,7 +7,6 @@ import ShoppingCartPage from "../../pages/shoppingCartPage";
 import dummyAddresses from "../../fixtures/mock-addresses.json";
 
 test.describe("Shopping Cart Scenarios", () => {
-  let Login: LoginPage;
   let Navigation: NavigationComponent;
   let Products: ProductsPage;
   let ProductDetails: ProductDetailsPage;
@@ -16,7 +15,6 @@ test.describe("Shopping Cart Scenarios", () => {
   const listOfItems = ["Phillips Screwdriver", "Measuring Tape"];
 
   test.beforeEach(async ({ page }) => {
-    Login = new LoginPage(page);
     Navigation = new NavigationComponent(page);
     Products = new ProductsPage(page);
     ProductDetails = new ProductDetailsPage(page);
@@ -61,22 +59,23 @@ test.describe("Shopping Cart Scenarios", () => {
   });
 
   test("User can complete the Checkout & Payment flow", async ({ page }) => {
+    await Navigation.navigateToShoppingCart();
+    // Cart > Sign In
+    await ShoppingCart.clickProceedToCheckout();
+    // Sign In > Billing Address
+    await ShoppingCart.clickContinueAsGuestTab();
+    await ShoppingCart.signUpAsGuest("email@email.com", "First", "Last");
+    await ShoppingCart.clickProceedToCheckout();
+    await ShoppingCart.fillBillingDetails(dummyAddresses.addresses[0]);
+    // Billing Address > Payment Method
+    await ShoppingCart.clickProceedToCheckout();
+    await ShoppingCart.selectPaymentMethod("Cash on Delivery");
+
     const purchaseCompleteResponse = page.waitForResponse(
       (response) =>
         response.url().includes("/payment/check") &&
         response.request().method() === "POST",
     );
-
-    await Navigation.navigateToShoppingCart();
-    // Cart > Sign In
-    await ShoppingCart.clickProceedToCheckout();
-    // Sign In > Billing Address
-    await Login.loginAs("customer1");
-    await ShoppingCart.clickProceedToCheckout();
-    await ShoppingCart.fillBillingAddress(dummyAddresses.addresses[0]);
-    // Billing Address > Payment Method
-    await ShoppingCart.clickProceedToCheckout();
-    await ShoppingCart.selectPaymentMethod("Cash on Delivery");
     await ShoppingCart.clickConfirmPaymentMethod();
 
     expect((await purchaseCompleteResponse).status()).toBe(200);
