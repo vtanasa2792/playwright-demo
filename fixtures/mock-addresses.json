@@ -1,25 +1,19 @@
 {
   "addresses": [
     {
-      "street": "123 Maple Street",
-      "city": "Berlin",
-      "state": "Brandenburg",
       "country": "Germany",
-      "postal_code": "10115"
+      "postal_code": "10115",
+      "house_number": "1"
     },
     {
-      "street": "456 Oak Avenue",
-      "city": "Amsterdam",
-      "state": "North Holland",
       "country": "Netherlands",
-      "postal_code": "1012 AB"
+      "postal_code": "1012 AB",
+      "house_number": "A34"
     },
     {
-      "street": "789 Pine Road",
-      "city": "Barcelona",
-      "state": "Catalonia",
       "country": "Spain",
-      "postal_code": "08001"
+      "postal_code": "08001",
+      "house_number": "GA21"
     }
   ]
 }
