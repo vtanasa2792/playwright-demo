@@ -4,6 +4,17 @@ import Authentication from "../../../utilities/clients/auth.client";
 
 test.describe("API Functional - Brands", () => {
   let adminBearerToken: string;
+  const uniqueSuffix = Date.now();
+
+  const initialPayload: CreateBrand = {
+    name: "Original Brand",
+    slug: `original-brand-${uniqueSuffix}`,
+  };
+
+  const updatedPayload: CreateBrand = {
+    name: "Updated Brand",
+    slug: `updated-brand-${uniqueSuffix}`,
+  };
 
   test.beforeAll(async ({ request }) => {
     adminBearerToken = await new Authentication(request).loginAs("admin");
@@ -11,17 +22,6 @@ test.describe("API Functional - Brands", () => {
 
   test("Brand CRUD lifecycle", async ({ request }) => {
     const authHeader = { Authorization: `Bearer ${adminBearerToken}` };
-    const uniqueSuffix = Date.now();
-
-    const initialPayload: CreateBrand = {
-      name: "Original Brand",
-      slug: `original-brand-${uniqueSuffix}`,
-    };
-
-    const updatedPayload: CreateBrand = {
-      name: "Updated Brand",
-      slug: `updated-brand-${uniqueSuffix}`,
-    };
 
     let createdBrandId: string;
 

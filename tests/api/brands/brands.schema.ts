@@ -6,6 +6,10 @@ export const BrandSchema = z.object({
   slug: z.string(),
 });
 
+export const ValidationErrorSchema = z.record(z.string(), z.array(z.string()));
+
+export const DefaultErrorSchema = z.object({ message: z.string() });
+
 export type Brand = z.infer<typeof BrandSchema>;
 
 export const BrandListSchema = z.array(BrandSchema);

@@ -5,6 +5,7 @@ test-results
 blob-report
 playwright/.cache
 .git
-.github.
+.github
 .vscode
 GOALS.md
+.claude
