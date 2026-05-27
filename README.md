@@ -1,91 +1,69 @@
 # Playwright Demo
 
-This is a Playwright/TypeScript demo framework built from scratch to showcase my understanding of core test automation principles. Coming from a Cypress background, this project demonstrates my ability to translate those skills into Playwright, covering POM architecture, credential handling, utility abstractions, and CI/CD integration.
+[![Playwright Tests](https://github.com/vtanasa2792/playwright-demo/actions/workflows/playwright.yml/badge.svg?branch=main)](https://github.com/vtanasa2792/playwright-demo/actions/workflows/playwright.yml)
+
+A Playwright/TypeScript test automation framework built from scratch against [practicesoftwaretesting.com](https://practicesoftwaretesting.com). Covers UI automation with the Page Object Model, API contract and functional testing with Zod, and a modular GitHub Actions pipeline.
 
 ## Tech Stack
 
-- TypeScript
-- Playwright
-- dotenv
-- GitHub Actions / GitLab CI
+TypeScript, Playwright, Zod, dotenv, GitHub Actions.
 
 ## Project Structure
 
 ```
-tests/
-  auth/
-  products/
-  cart/
+config/
 pages/
-  auth/
-  products/
-  cart/
-utils/
-.env
-playwright.config.ts
+fixtures/
+utilities/
+  clients/
+tests/
+  login/
+  products-catalog/
+  shopping-cart/
+  api/brands/
+.github/workflows/
 ```
 
 ## How to Run
 
-### Prerequisites
-
-Tests read credentials from a `.env` file (gitignored). Create one based on `.env.example`:
-
-```
-TEST_USERS={"admin":{"email":"...","password":"..."},"customer1":{"email":"...","password":"..."}}
-```
-
-### Run locally (Node)
-
-Requires Node and the Playwright browsers installed on your machine.
+Requires Node 20+ and a `.env` file based on `.env.example`.
 
 ```bash
-npm ci
-npx playwright install --with-deps
-npx playwright test
+npm install
+npx playwright install
+npx playwright test                          # all tests
+npx playwright test tests/api/brands         # a single module
+npx playwright show-report                   # open the HTML report
 ```
 
-### Run in Docker (one command, no local setup)
+## Design Decisions
 
-The `Dockerfile` packages the suite, Node, and all browsers into a single image, so the full suite runs in a clean, reproducible environment with nothing installed locally beyond Docker itself.
+### UI
 
-Build the image:
+- **Page Object Model** with intent-level actions; tests describe behaviour, page objects hide the DOM.
+- **`data-test` attributes** as the default locator strategy, set globally via `testIdAttribute`.
+- **`waitForResponse` over arbitrary waits**, set up before the triggering action.
+- **Assertions live in tests**, orchestration in page objects.
 
-```bash
-docker build -t playwright-suite .
-```
+### API
 
-Run the full suite, headless:
+- **Contract and functional specs are separate.** Contract validates shape (one test per endpoint); functional validates behaviour (one test, full CRUD lifecycle).
+- **Zod as a single source of truth.** Schemas are declared once; types are inferred via `z.infer`, eliminating duplicated type definitions.
+- **`test.step` per lifecycle phase** so failures report the exact phase and the test reads as a narrative.
+- **Admin bearer token acquired once** in `beforeAll` and reused across the describe.
+- **`auth.client.ts` lives under `utilities/`** because it is not API-test specific; UI tests can use it to seed state.
 
-```bash
-docker run --rm --env-file .env playwright-suite
-```
+### CI
 
-Notes on the flags:
-- `--rm` removes the container after it exits.
-- `--env-file .env` injects the test credentials at runtime, so secrets are never baked into the image.
+- **One job per module** running in parallel; a failure in one does not block the others.
+- **Reusable workflow** (`run-tests.yml`) invoked by each job with a `tests-folder` input. The API job skips browser install.
+- **Single worker in CI** for determinism; parallelism comes from the job level.
+- **WebKit removed** due to known Linux CI stability issues.
 
-The container exits with a non-zero status code if any test fails, so it works directly as a CI gate.
+## What I Would Add Next
 
-Run a specific suite by overriding the default command:
-
-```bash
-docker run --rm --env-file .env playwright-suite npx playwright test tests/api
-```
-
-### How CI runs the tests
-
-CI uses a different design than the local Docker image, on purpose. Instead of baking the test code into an image, GitHub Actions runs each job **inside an environment-only image** (browsers plus system dependencies, no test code) and checks out the latest code into it at run time:
-
-```yaml
-container:
-  image: ghcr.io/vtanasa2792/playwright-env:v1.59.1-noble
-```
-
-This image is a mirror of the official Playwright image, re-hosted in this project's own GitHub Container Registry for reliability and control (no dependency on Docker Hub availability or rate limits). The official image is pinned by Playwright version so the bundled browsers always match the installed `@playwright/test`.
-
-The two containerization approaches serve different goals:
-- The `Dockerfile` (environment plus code) is for running the whole suite locally or anywhere in one command.
-- The CI environment image (environment only, code checked out per run) keeps every pull request tested against its own latest code in an identical, reproducible environment.
-
-Credentials are injected in CI through the `TEST_USERS` GitHub Actions secret, the same way `--env-file` injects them locally.
+- Playwright fixtures for shared login state.
+- Negative-path API tests (401, 404, 422).
+- Browser matrix in CI (chromium, firefox).
+- Generated API tests for the remaining resources from the OpenAPI spec.
+- Richer `Product` model returning typed objects rather than parallel arrays.
