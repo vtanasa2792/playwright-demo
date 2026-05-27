@@ -5,28 +5,21 @@ on:
       tests-folder:
         required: true
         type: string
-      install-browsers:
-        required: false
-        type: boolean
-        default: true
 jobs:
   tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/vtanasa2792/playwright-demo-env:v1.59.1-noble
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright Browsers
-        if: ${{ inputs.install-browsers }}
-        run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: npx playwright test tests/${{ inputs.tests-folder }}
         env:
           TEST_USERS: ${{ secrets.TEST_USERS }}
+          HOME: /root
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
