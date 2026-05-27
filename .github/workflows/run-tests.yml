@@ -9,8 +9,6 @@ jobs:
   tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    env:
-      HOME: /root
     container:
       image: ghcr.io/vtanasa2792/playwright-demo-env:v1.59.1-noble
     steps:
@@ -21,6 +19,7 @@ jobs:
         run: npx playwright test tests/${{ inputs.tests-folder }}
         env:
           TEST_USERS: ${{ secrets.TEST_USERS }}
+          HOME: /root
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
