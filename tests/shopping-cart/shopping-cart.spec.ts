@@ -12,7 +12,7 @@ test.describe("Shopping Cart Scenarios", () => {
   let ProductDetails: ProductDetailsPage;
   let ShoppingCart: ShoppingCartPage;
 
-  const listOfItems = ["Phillips Screwdriver", "Measuring Tape"];
+  const listOfItems: string[] = ["Phillips Screwdriver", "Measuring Tape"];
 
   test.beforeEach(async ({ page }) => {
     Navigation = new NavigationComponent(page);
