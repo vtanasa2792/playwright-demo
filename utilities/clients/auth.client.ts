@@ -1,5 +1,5 @@
 import { APIRequestContext } from "@playwright/test";
-import UserConfig from "../../config/UserConfig";
+import UserConfig from "../../configs/UserConfig";
 
 class Authentication {
   private request: APIRequestContext;
@@ -19,7 +19,18 @@ class Authentication {
       },
     });
 
+    if (!response.ok()) {
+      throw new Error(
+        `Login as "${role}" failed: ${response.status()} ${await response.text()}`,
+      );
+    }
+
     const body = await response.json();
+    if (!body.access_token) {
+      throw new Error(
+        `Login as "${role}" succeeded but returned no access_code`,
+      );
+    }
     return body.access_token;
   }
 }

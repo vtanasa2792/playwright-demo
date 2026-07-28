@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import NavigationComponent from "../../pages/navigation";
-import LoginPage from "../../pages/loginPage";
+import NavigationComponent from "../../../pages/navigation";
+import LoginPage from "../../../pages/loginPage";
 
 test.describe("Login Scenarios", () => {
   let Login: LoginPage;

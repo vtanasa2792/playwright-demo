@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import ProductsPage from "../../pages/productsPage";
-import GeneralUtilities from "../../utilities/utilities";
+import ProductsPage from "../../../pages/productsPage";
+import GeneralUtilities from "../../../utilities/utilities";
 
 test.describe("Products Catalog Scenarios", () => {
   let Products: ProductsPage;

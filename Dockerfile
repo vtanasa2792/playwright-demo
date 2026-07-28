@@ -13,4 +13,4 @@ RUN npm ci
 COPY . .
 
 # Exec form so the test exit code propagates (non-zero on failure).
-CMD ["npx", "playwright", "test"]
+CMD ["npx", "playwright", "test", "--config", "configs/playwright.dev.config.ts"]
