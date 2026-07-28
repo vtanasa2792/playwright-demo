@@ -5,26 +5,14 @@ on:
   pull_request:
     branches: [main, master]
 jobs:
-  login-tests:
-    uses: ./.github/workflows/run-tests.yml
-    with:
-      tests-folder: login
-    secrets: inherit
-
-  products-catalog-tests:
-    uses: ./.github/workflows/run-tests.yml
-    with:
-      tests-folder: products-catalog
-    secrets: inherit
-
-  shopping-cart-tests:
-    uses: ./.github/workflows/run-tests.yml
-    with:
-      tests-folder: shopping-cart
-    secrets: inherit
-
   api-tests:
     uses: ./.github/workflows/run-tests.yml
     with:
-      tests-folder: api
+      project: api
+    secrets: inherit
+
+  e2e-tests:
+    uses: ./.github/workflows/run-tests.yml
+    with:
+      project: e2e
     secrets: inherit

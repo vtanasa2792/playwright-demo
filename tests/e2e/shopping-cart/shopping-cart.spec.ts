@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import ProductsPage from "../../pages/productsPage";
-import LoginPage from "../../pages/loginPage";
-import NavigationComponent from "../../pages/navigation";
-import ProductDetailsPage from "../../pages/productDetailsPage";
-import ShoppingCartPage from "../../pages/shoppingCartPage";
-import dummyAddresses from "../../fixtures/mock-addresses.json";
+import ProductsPage from "../../../pages/productsPage";
+import LoginPage from "../../../pages/loginPage";
+import NavigationComponent from "../../../pages/navigation";
+import ProductDetailsPage from "../../../pages/productDetailsPage";
+import ShoppingCartPage from "../../../pages/shoppingCartPage";
+import dummyAddresses from "../../../fixtures/mock-addresses.json";
 
 test.describe("Shopping Cart Scenarios", () => {
   let Navigation: NavigationComponent;

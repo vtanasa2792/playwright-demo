@@ -2,7 +2,10 @@
   "name": "playwright-demo",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:api:dev": "playwright test --config configs/playwright.dev.config.ts --project=api",
+    "test:e2e:dev": "playwright test --config configs/playwright.dev.config.ts --project=e2e"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

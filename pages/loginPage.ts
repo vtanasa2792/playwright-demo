@@ -1,5 +1,5 @@
 import { expect, Page } from "@playwright/test";
-import UserConfig from "../config/UserConfig";
+import UserConfig from "../configs/UserConfig";
 class LoginPage {
   constructor(private page: Page) {}
 
