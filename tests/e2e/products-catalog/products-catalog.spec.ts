@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 import ProductsPage from "../../../pages/productsPage";
 import GeneralUtilities from "../../../utilities/utilities";
 
@@ -28,8 +28,7 @@ test.describe("Products Catalog Scenarios", () => {
 
   test("Search by Name - Valid Name", async () => {
     await Products.searchByName("Goggles");
-    const arrayOfDisplayedNames = await Products.getDisplayedNames();
-    expect(arrayOfDisplayedNames).toEqual(["Safety Goggles"]);
+    await Products.expectDisplayedNames(["Safety Goggles"]);
   });
 
   test("Search by Name - Invalid Name", async () => {
