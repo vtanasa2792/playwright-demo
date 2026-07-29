@@ -1,38 +1,33 @@
-import { test } from "@playwright/test";
-import ProductsPage from "../../../pages/productsPage";
+import { test } from "../../../fixtures";
 import GeneralUtilities from "../../../utilities/utilities";
 
+const Utilities = new GeneralUtilities();
+
 test.describe("Products Catalog Scenarios", () => {
-  let Products: ProductsPage;
-  let Utilities: GeneralUtilities;
-
-  test.beforeEach(async ({ page }) => {
-    Products = new ProductsPage(page);
-    Utilities = new GeneralUtilities();
-
+  test.beforeEach(async ({ page, productsPage }) => {
     await page.goto("");
-    await Products.isProductsPageLoaded();
+    await productsPage.isProductsPageLoaded();
   });
 
-  test("Sort By Price - Ascending", async () => {
-    await Products.sortBy("Price (Low - High)");
-    const arrayOfDisplayedPrices = await Products.getDisplayedPrices();
+  test("Sort By Price - Ascending", async ({ productsPage }) => {
+    await productsPage.sortBy("Price (Low - High)");
+    const arrayOfDisplayedPrices = await productsPage.getDisplayedPrices();
     Utilities.checkArraySorting(arrayOfDisplayedPrices, "ascending");
   });
 
-  test("Sort By Name - Descending", async () => {
-    await Products.sortBy("Name (Z - A)");
-    const arrayOfDisplayedNames = await Products.getDisplayedNames();
+  test("Sort By Name - Descending", async ({ productsPage }) => {
+    await productsPage.sortBy("Name (Z - A)");
+    const arrayOfDisplayedNames = await productsPage.getDisplayedNames();
     Utilities.checkArraySorting(arrayOfDisplayedNames, "descending");
   });
 
-  test("Search by Name - Valid Name", async () => {
-    await Products.searchByName("Goggles");
-    await Products.expectDisplayedNames(["Safety Goggles"]);
+  test("Search by Name - Valid Name", async ({ productsPage }) => {
+    await productsPage.searchByName("Goggles");
+    await productsPage.expectDisplayedNames(["Safety Goggles"]);
   });
 
-  test("Search by Name - Invalid Name", async () => {
-    await Products.searchByName("jalkwjfalaw");
-    await Products.isNoSearchResultsDisplayed();
+  test("Search by Name - Invalid Name", async ({ productsPage }) => {
+    await productsPage.searchByName("jalkwjfalaw");
+    await productsPage.isNoSearchResultsDisplayed();
   });
 });
