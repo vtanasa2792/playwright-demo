@@ -1,9 +1,8 @@
-import { expect, test } from "@playwright/test";
-import { BrandSchema, CreateBrand } from "./brands.schema";
-import Authentication from "../../../utilities/clients/auth.client";
+import { expect, test } from "../../../fixtures/index";
+import { validateSchema } from "../../../utilities/validators";
+import { BrandSchema, CreateBrand } from "../../../schemas/brands.schema";
 
 test.describe("API Functional - Brands", () => {
-  let adminBearerToken: string;
   const uniqueSuffix = Date.now();
 
   const initialPayload: CreateBrand = {
@@ -16,12 +15,8 @@ test.describe("API Functional - Brands", () => {
     slug: `updated-brand-${uniqueSuffix}`,
   };
 
-  test.beforeAll(async ({ request }) => {
-    adminBearerToken = await new Authentication(request).loginAs("admin");
-  });
-
-  test("Brand CRUD lifecycle", async ({ request }) => {
-    const authHeader = { Authorization: `Bearer ${adminBearerToken}` };
+  test("Brand CRUD lifecycle", async ({ request, adminToken }) => {
+    const authHeader = { Authorization: `Bearer ${adminToken}` };
 
     let createdBrandId: string;
 
@@ -30,7 +25,8 @@ test.describe("API Functional - Brands", () => {
         headers: authHeader,
         data: initialPayload,
       });
-      const brand = BrandSchema.parse(await response.json());
+      const body = await response.json();
+      const brand = validateSchema(BrandSchema, body);
 
       expect(response.status()).toBe(201);
       expect(brand.name).toBe(initialPayload.name);
@@ -41,12 +37,12 @@ test.describe("API Functional - Brands", () => {
 
     await test.step("Read the created brand by id", async () => {
       const response = await request.get(`/brands/${createdBrandId}`);
-      const brand = BrandSchema.parse(await response.json());
+      const body = await response.json();
 
       expect(response.status()).toBe(200);
-      expect(brand.id).toBe(createdBrandId);
-      expect(brand.name).toBe(initialPayload.name);
-      expect(brand.slug).toBe(initialPayload.slug);
+      expect(body.id).toBe(createdBrandId);
+      expect(body.name).toBe(initialPayload.name);
+      expect(body.slug).toBe(initialPayload.slug);
     });
 
     await test.step("Update the brand", async () => {
@@ -60,11 +56,11 @@ test.describe("API Functional - Brands", () => {
 
     await test.step("Verify the update persisted", async () => {
       const response = await request.get(`/brands/${createdBrandId}`);
-      const brand = BrandSchema.parse(await response.json());
+      const body = await response.json();
 
       expect(response.status()).toBe(200);
-      expect(brand.name).toBe(updatedPayload.name);
-      expect(brand.slug).toBe(updatedPayload.slug);
+      expect(body.name).toBe(updatedPayload.name);
+      expect(body.slug).toBe(updatedPayload.slug);
     });
 
     await test.step("Delete the brand", async () => {

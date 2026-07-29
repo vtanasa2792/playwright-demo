@@ -1,82 +1,84 @@
-import { expect, test } from "@playwright/test";
-import ProductsPage from "../../../pages/productsPage";
-import LoginPage from "../../../pages/loginPage";
-import NavigationComponent from "../../../pages/navigation";
-import ProductDetailsPage from "../../../pages/productDetailsPage";
-import ShoppingCartPage from "../../../pages/shoppingCartPage";
+import { expect, test } from "../../../fixtures";
 import dummyAddresses from "../../../fixtures/mock-addresses.json";
 
 test.describe("Shopping Cart Scenarios", () => {
-  let Navigation: NavigationComponent;
-  let Products: ProductsPage;
-  let ProductDetails: ProductDetailsPage;
-  let ShoppingCart: ShoppingCartPage;
-
   const listOfItems: string[] = ["Phillips Screwdriver", "Measuring Tape"];
 
-  test.beforeEach(async ({ page }) => {
-    Navigation = new NavigationComponent(page);
-    Products = new ProductsPage(page);
-    ProductDetails = new ProductDetailsPage(page);
-    ShoppingCart = new ShoppingCartPage(page);
+  test.beforeEach(
+    async ({ page, navigation, productsPage, productDetailsPage }) => {
+      await page.goto("");
 
-    await page.goto("");
+      for (let itemToAddToCart of listOfItems) {
+        await productsPage.isProductsPageLoaded();
+        await productsPage.searchByName(itemToAddToCart);
+        await productsPage.openProductByName(itemToAddToCart);
+        await productDetailsPage.isProductDetailsPageLoaded();
+        await productDetailsPage.clickAddToCart();
+        await navigation.navigateTo("Home");
+      }
+    },
+  );
 
-    for (let itemToAddToCart of listOfItems) {
-      await Products.isProductsPageLoaded();
-      await Products.searchByName(itemToAddToCart);
-      await Products.openProductByName(itemToAddToCart);
-      await ProductDetails.isProductDetailsPageLoaded();
-      await ProductDetails.clickAddToCart();
-      await Navigation.navigateTo("Home");
-    }
+  test("Number of Items in Cart are displayed on the Cart Icon", async ({
+    navigation,
+  }) => {
+    await navigation.expectCartCount(listOfItems.length);
   });
 
-  test("Number of Items in Cart are displayed on the Cart Icon", async () => {
-    await Navigation.expectCartCount(listOfItems.length);
-  });
-
-  test("Added items are present in the Cart with correct Name", async () => {
-    await Navigation.navigateToShoppingCart();
+  test("Added items are present in the Cart with correct Name", async ({
+    navigation,
+    shoppingCartPage,
+  }) => {
+    await navigation.navigateToShoppingCart();
     for (let itemInCart of listOfItems) {
-      await ShoppingCart.expectItemInCart(itemInCart);
+      await shoppingCartPage.expectItemInCart(itemInCart);
     }
   });
 
-  test("Added items are present in the Cart with the correct Quantity", async () => {
-    await Navigation.navigateToShoppingCart();
+  test("Added items are present in the Cart with the correct Quantity", async ({
+    navigation,
+    shoppingCartPage,
+  }) => {
+    await navigation.navigateToShoppingCart();
     for (let itemInCart of listOfItems) {
-      await ShoppingCart.expectItemQuantity(itemInCart, 1);
+      await shoppingCartPage.expectItemQuantity(itemInCart, 1);
     }
   });
 
-  test("Total Price is correctly calculated based on Item Quantity", async () => {
-    await Navigation.navigateToShoppingCart();
+  test("Total Price is correctly calculated based on Item Quantity", async ({
+    navigation,
+    shoppingCartPage,
+  }) => {
+    await navigation.navigateToShoppingCart();
     for (let itemInCart of listOfItems) {
-      await ShoppingCart.changeQuantityTo(itemInCart, 10);
-      await ShoppingCart.expectItemPriceTotal(itemInCart);
+      await shoppingCartPage.changeQuantityTo(itemInCart, 10);
+      await shoppingCartPage.expectItemPriceTotal(itemInCart);
     }
   });
 
-  test("User can complete the Checkout & Payment flow", async ({ page }) => {
-    await Navigation.navigateToShoppingCart();
+  test("User can complete the Checkout & Payment flow", async ({
+    page,
+    navigation,
+    shoppingCartPage,
+  }) => {
+    await navigation.navigateToShoppingCart();
     // Cart > Sign In
-    await ShoppingCart.clickProceedToCheckout();
+    await shoppingCartPage.clickProceedToCheckout();
     // Sign In > Billing Address
-    await ShoppingCart.clickContinueAsGuestTab();
-    await ShoppingCart.signUpAsGuest("email@email.com", "First", "Last");
-    await ShoppingCart.clickProceedToCheckout();
-    await ShoppingCart.fillBillingDetails(dummyAddresses.addresses[0]);
+    await shoppingCartPage.clickContinueAsGuestTab();
+    await shoppingCartPage.signUpAsGuest("email@email.com", "First", "Last");
+    await shoppingCartPage.clickProceedToCheckout();
+    await shoppingCartPage.fillBillingDetails(dummyAddresses.addresses[0]);
     // Billing Address > Payment Method
-    await ShoppingCart.clickProceedToCheckout();
-    await ShoppingCart.selectPaymentMethod("Cash on Delivery");
+    await shoppingCartPage.clickProceedToCheckout();
+    await shoppingCartPage.selectPaymentMethod("Cash on Delivery");
 
     const purchaseCompleteResponse = page.waitForResponse(
       (response) =>
         response.url().includes("/payment/check") &&
         response.request().method() === "POST",
     );
-    await ShoppingCart.clickConfirmPaymentMethod();
+    await shoppingCartPage.clickConfirmPaymentMethod();
 
     expect((await purchaseCompleteResponse).status()).toBe(200);
   });
