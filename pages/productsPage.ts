@@ -45,6 +45,12 @@ class ProductsPage {
   private PRODUCT_CARD_NAME = this.page.getByTestId("product-name");
   private PRODUCT_CARD_PRICE = this.page.getByTestId("product-price");
 
+  private waitForQueryResponse() {
+    return this.page.waitForResponse(
+      (response) => response.request().method() === "QUERY",
+    );
+  }
+
   /**
    * Validate that the main elements of the page are visible
    */
@@ -67,7 +73,7 @@ class ProductsPage {
    * @param sortCriteria
    */
   async sortBy(sortCriteria: SortCriteria) {
-    const sortResponse = this.page.waitForResponse(/sort=/);
+    const sortResponse = this.waitForQueryResponse();
     await this.FILTERS_SORT.click();
     await this.FILTERS_SORT.selectOption(sortCriteria);
     await sortResponse;
@@ -78,7 +84,7 @@ class ProductsPage {
    * @param searchTerm
    */
   async searchByName(searchTerm: string) {
-    const searchResponse = this.page.waitForResponse(/search/);
+    const searchResponse = this.waitForQueryResponse();
     await this.FILTERS_SEARCH_INPUT.fill(searchTerm);
     await this.FILTERS_SEARCH_SUBMIT_BTN.click();
     await searchResponse;
@@ -89,7 +95,7 @@ class ProductsPage {
    * @param filters
    */
   async filterByCategory(...filters: ProductCategory[]) {
-    const filterResponse = this.page.waitForResponse(/by_category/);
+    const filterResponse = this.waitForQueryResponse();
     for (let eachFilter of filters) {
       await this.FILTERS_CONTAINER.getByRole("checkbox", {
         name: eachFilter,
@@ -129,6 +135,15 @@ class ProductsPage {
       await this.PRODUCT_CARD_NAME.allTextContents();
 
     return displayedNames.map((name) => name.trim());
+  }
+
+  /**
+   * Assert that the displayed Product Names exactly match the expected list,
+   * retrying until the DOM reflects the latest search/sort/filter response
+   * @param expectedNames
+   */
+  async expectDisplayedNames(expectedNames: string[]) {
+    await expect(this.PRODUCT_CARD_NAME).toHaveText(expectedNames);
   }
 
   /**
